@@ -41,6 +41,14 @@ main :: proc() {
 	fmt.printfln("Left: %d", left_ints)
 	fmt.printfln("Right: %d", right_ints)
 
+	sum_of_differences := compute_sum_of_differences(left_ints[:], right_ints[:])
+	fmt.printfln("Part 1: Sum of differences: %d", sum_of_differences)
+
+	sum_of_similarities := compute_sum_of_similarities(left_ints[:], right_ints[:])
+	fmt.printfln("Part 2: Sum of similarities: %d", sum_of_similarities)
+}
+
+compute_sum_of_differences :: proc(left_ints: []int, right_ints: []int) -> int {
 	slice.sort(left_ints[:])
 	slice.sort(right_ints[:])
 
@@ -48,11 +56,31 @@ main :: proc() {
 	fmt.printfln("Left: %d", left_ints)
 	fmt.printfln("Right: %d", right_ints)
 
-	ints_count := len(left_ints)
 	sum_of_differences := 0
+
+	ints_count := len(left_ints)
 	for i in 0 ..< ints_count {
 		sum_of_differences += abs(left_ints[i] - right_ints[i])
 	}
 
-	fmt.printfln("Sum of differences: %d", sum_of_differences)
+	return sum_of_differences
+}
+
+compute_sum_of_similarities :: proc(left_ints: []int, right_ints: []int) -> int {
+	sum_of_similarities := 0
+
+	for left_int in left_ints {
+		similarity_count := 0
+		for right_int in right_ints {
+			if left_int == right_int {
+				similarity_count += 1
+			}
+		}
+
+		similarity_score := left_int * similarity_count
+
+		sum_of_similarities += similarity_score
+	}
+
+	return sum_of_similarities
 }
