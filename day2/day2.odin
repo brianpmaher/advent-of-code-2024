@@ -24,6 +24,7 @@ main :: proc() {
 	data_str := utils.read_file("puzzle-input.txt")
 	report_strings := strings.split(data_str, "\n")
 
+	// Parse reports
 	reports := make([dynamic]Report)
 	for report_str in report_strings {
 		if report_str == "" {
@@ -44,6 +45,7 @@ main :: proc() {
 		append(&reports, report)
 	}
 
+	// Determine initially safe reports
 	report_loop: for &report in reports {
 		report.is_safe = false
 		first_level := report.levels[0]
@@ -88,18 +90,63 @@ main :: proc() {
 		}
 	}
 
+	// Sum initial safe reports
 	sum_safe := 0
 	for report in reports {
 		if report.is_safe {
 			sum_safe += 1
 		}
 	}
-
 	fmt.printfln("Safe reports: %d", sum_safe)
-}
 
-// The levels are either all increasing or all decreasing.
-// Any two adjacent levels differ by at least one and at most three.
-is_safe_report :: proc(report: []int) -> bool {
-	return false
+	// Process unsafe reports with tolerance
+	report_loop2: for &report in reports {
+		if report.is_safe {
+			continue
+		}
+
+		skipped_level := false
+		fmt.println("========== Starting report scan ==========")
+		fmt.println(report)
+		prev_level := report.levels[0]
+		for level, i in report.levels[1:] {
+			if report.type == .Increasing {
+				if level < prev_level {
+					if skipped_level {
+						continue report_loop2
+					}
+					continue
+				}
+			} else if report.type == .Decreasing {
+				if level > prev_level {
+					if skipped_level {
+						continue report_loop2
+					}
+					continue
+				}
+			}
+
+			difference := abs(prev_level - level)
+			if difference < 1 || difference > 3 {
+				if skipped_level {
+					continue report_loop2
+				}
+				continue
+			}
+
+			if i == len(report.levels) - 2 {
+				report.is_safe = true
+			}
+			prev_level = level
+		}
+	}
+
+	// Sum total safe and tolerant reports
+	sum_safe = 0
+	for report in reports {
+		if report.is_safe {
+			sum_safe += 1
+		}
+	}
+	fmt.printfln("Safe and tolerant reports: %d", sum_safe)
 }
