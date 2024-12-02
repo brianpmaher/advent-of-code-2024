@@ -7,20 +7,10 @@ import "core:sort"
 import "core:strconv"
 import "core:strings"
 
-INPUT_FILE :: "puzzle-input.txt"
+import "../utils"
 
 main :: proc() {
-	data, success := os.read_entire_file_from_filename(INPUT_FILE)
-	if !success {
-		fmt.println("Error reading file")
-		return
-	}
-
-	data_str := string(data)
-
-	fmt.printf(data_str)
-
-	data_str, _ = strings.replace_all(data_str, "\r", "")
+	data_str := utils.read_file("puzzle-input.txt")
 	rows, _ := strings.split(data_str, "\n")
 	left_ints := make([dynamic]int)
 	right_ints := make([dynamic]int)
