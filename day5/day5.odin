@@ -16,7 +16,7 @@ Rule :: struct {
 Update_List :: [dynamic]Update
 
 main :: proc() {
-	data_str := utils.read_file("test-input.txt")
+	data_str := utils.read_file("puzzle-input.txt")
 	data_str, _ = strings.replace_all(data_str, "\r", "")
 	lines := strings.split(data_str, "\n")
 
@@ -49,7 +49,7 @@ main :: proc() {
 		append(&rules, rule)
 	}
 
-	updates := make([dynamic]Update_List)
+	update_lists := make([dynamic]Update_List)
 	for update_line in updates_lines {
 		update_parts := strings.split(update_line, ",")
 		update_list := make(Update_List)
@@ -57,11 +57,54 @@ main :: proc() {
 			update, _ := strconv.parse_int(update_part)
 			append(&update_list, update)
 		}
-		append(&updates, update_list)
+		append(&update_lists, update_list)
 	}
 
-	fmt.println(rules)
-	fmt.println(updates)
+	// fmt.println(rules)
+	// fmt.println(update_lists)
 
-	// TODO: Complete Day 5 Part 1
+	correct_update_lists := make([dynamic]Update_List)
+	for update_list in update_lists {
+		// Determine relevant rules
+		relevant_rules := make([dynamic]Rule)
+		for rule in rules {
+			rule_number_count := 0
+			for update in update_list {
+				if update == rule.before || update == rule.after {
+					rule_number_count += 1
+				}
+				if rule_number_count == 2 {
+					break
+				}
+			}
+			if rule_number_count == 2 {
+				append(&relevant_rules, rule)
+			}
+		}
+
+		// Apply relevant rules
+		is_valid := true
+		for rule in relevant_rules {
+			before_found := false
+			for update in update_list {
+				if rule.before == update {
+					before_found = true
+				}
+				if rule.after == update && !before_found {
+					is_valid = false
+				}
+			}
+		}
+		if is_valid {
+			append(&correct_update_lists, update_list)
+		}
+	}
+
+	sum_of_middles := 0
+	for update_list in correct_update_lists {
+		update := update_list[len(update_list) / 2]
+		sum_of_middles += update
+	}
+
+	fmt.println("Sum of middles:", sum_of_middles)
 }
